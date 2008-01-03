@@ -6,7 +6,7 @@
             <field name="model">ir.attachment</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Attachments">
                     <field name="name" colspan="4" select="1"/>
                     <field name="datas" colspan="4"/>
@@ -25,7 +25,7 @@
             <field name="model">ir.attachment</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Attachments">
                     <field name="name"/>
                     <field name="res_model"/>

@@ -6,7 +6,7 @@
             <field name="model">ir.exports</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Exports">
                     <field name="name" select="1"/>
                     <field name="resource" select="1"/>
@@ -20,7 +20,7 @@
             <field name="model">ir.exports</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Exports">
                     <field name="name"/>
                     <field name="resource"/>

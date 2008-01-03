@@ -10,8 +10,6 @@ from trytond.config import CONFIG
 from trytond.version import VERSION
 import logging
 
-
-
 CDATA_START = re.compile('^\s*\<\!\[cdata\[', re.IGNORECASE)
 CDATA_END = re.compile('\]\]\>\s*$', re.IGNORECASE)
 
@@ -88,7 +86,7 @@ def _eval_xml(self, node, pool, cursor, user, idref, context=None):
                 txt = CDATA_START.sub('', txt)
                 txt = CDATA_END.sub('', txt)
 
-                return '<?xml version="1.0"?>\n' + txt 
+                return '<?xml version="1.0"?>\n' + txt
             if f_type in ('char', 'int', 'float'):
                 value = ""
                 for child_node in node.childNodes:
@@ -221,6 +219,7 @@ class XMLImport(object):
         if len(obj_id) > 64:
             Logger().notify_channel('init', LOG_ERROR,
                     'id: %s is to long (max: 64)' % xml_id)
+
     def _tag_delete(self, cursor, rec, data_node=None):
         d_model = rec.getAttribute("model")
         d_search = rec.getAttribute("search")
@@ -803,10 +802,30 @@ class DummyTagHandler:
 class MenuitemTagHandler:
     """Taghandler for the tag <record> """
     def __init__(self, master_handler):
-        pass
+        self.mh = master_handler
 
     def startElement(self, name, attributes):
-        return
+
+        values = {}
+
+        self.xml_id = attributes['id']
+
+        for attr in ('name', 'icon', 'sequence', 'parent_id', 'action'):
+            if attributes.get(attr):
+                values[attr] = attributes.get(attr).encode('utf8')
+
+
+        if values.get('parent_id') :
+            values['parent_id'] = self.mh.get_id(values['parent_id'])
+
+        if values.get('action') :
+            type_attr = attributes.get('type', 'act_window').encode('utf8')
+            values['action'] = "ir.actions.%s,%d" %\
+                (type_attr, self.mh.get_id(values['action']))
+
+        print values
+        self.values = values
+
 
     def characters(self, data):
         pass
@@ -816,6 +835,11 @@ class MenuitemTagHandler:
         if name != "menuitem":
             return self
         else:
+
+            res = self.mh.pool.get('ir.model.data')._update(
+                self.mh.cursor, self.mh.user,
+                'ir.ui.menu', self.mh.module, self.values, self.xml_id,
+                noupdate=self.mh.noupdate, mode=self.mh.mode)
             return None
 
 
@@ -826,6 +850,7 @@ class RecordTagHandler:
     def __init__(self, master_handler):
         # Remind reference of parent handler
         self.mh = master_handler
+
 
     def startElement(self, name, attributes):
 
@@ -866,8 +891,7 @@ class RecordTagHandler:
                     cursor, self.mh.user,
                     model.search(self.mh.cursor,self.mh.user, search_attr))
 
-                if not answer:
-                    return
+                if not answer: return
 
                 if field_name in model._columns:
                     if model._columns[field_name]._type == 'many2many':
@@ -877,14 +901,28 @@ class RecordTagHandler:
                         self.values[field_name] = answer[0]['id']
 
             elif ref_attr:
-                # TODO avec cache sur les ids..:
-                #self.id_get(cursor, f_ref)
+                # TODO handle correctly the cache on ids
                 self.values[field_name] = self.mh.get_id(ref_attr)
 
             elif eval_attr:
-                print "NOT IMPLEMENTED : eval"
-                pass
 
+                import time
+                context = {}
+                context['time'] = time
+                context['version'] = VERSION.rsplit('.', 1)[0]
+                context['ref'] = self.mh.get_id
+                context['obj'] = lambda *a: 1
+                try:
+                    import pytz
+                except:
+                    Logger().notify_channel("init", LOG_INFO,
+                            'could not find pytz library')
+                    class Pytz(object):
+                        all_timezones = []
+
+                    pytz = Pytz()
+                    context['pytz'] = pytz
+                self.values[field_name] = eval(eval_attr, context)
 
         else:
             raise Exception("Tags '%s' not supported inside tag record."% (name,))
@@ -951,6 +989,7 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
         self.user = 1
         self.module = module
 
+
         # Tag handlders are used to delegate the processing
         self.taghandlerlist = {
             'record': RecordTagHandler(self),
@@ -994,9 +1033,8 @@ class TrytondXmlHandler(sax.handler.ContentHandler):
                 pass
 
             else:
-                # TODO logger, logger, logger, ... 
-                print "Tag", name , "not supported"
-                raise 
+                Logger().notify_channel("init", LOG_INFO,
+                            "Tag", name , "not supported")
                 return
         else:
             self.taghandler.startElement(name, attributes)
@@ -1022,7 +1060,7 @@ def convert_xml_import_sax(cursor, module, xmlstream, idref=None, mode='init',
 
 
     parser = sax.make_parser()
-    # Tell the parser we are not interested in XML namespaces 
+    # Tell the parser we are not interested in XML namespaces
     parser.setFeature(sax.handler.feature_namespaces, 0)
 
     handler = TrytondXmlHandler(
@@ -1041,5 +1079,5 @@ def convert_xml_import_sax(cursor, module, xmlstream, idref=None, mode='init',
     return True
 
 
-# use  convert_xml_import_sax or convert_xml_import_dom 
-convert_xml_import = convert_xml_import_dom
+# use  convert_xml_import_sax or convert_xml_import_dom
+convert_xml_import = convert_xml_import_sax

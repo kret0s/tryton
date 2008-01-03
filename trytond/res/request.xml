@@ -6,7 +6,7 @@
             <field name="model">res.request</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Requests">
                     <field name="create_date"/>
                     <field name="act_from"/>
@@ -24,7 +24,7 @@
             <field name="model">res.request</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Requests">
                     <notebook>
                         <page string="Request">
@@ -90,7 +90,7 @@
             <field name="model">res.request.link</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Request Link">
                     <field name="name" select="1"/>
                     <field name="object" select="1"/>
@@ -104,7 +104,7 @@
             <field name="model">res.request.link</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Request Link">
                     <field name="name"/>
                     <field name="object"/>
@@ -117,7 +117,7 @@
             <field name="model">res.request.history</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Request History">
                     <field name="act_from"/>
                     <field name="act_to"/>
@@ -132,7 +132,7 @@
             <field name="model">res.request.history</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Request History">
                     <field name="act_from"/>
                     <field name="act_to"/>

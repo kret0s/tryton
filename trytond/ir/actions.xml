@@ -7,7 +7,7 @@
             <field name="model">ir.actions.actions</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Action">
                     <field name="name" select="1"/>
                     <field name="type" select="1"/>
@@ -30,7 +30,7 @@
             <field name="model">ir.actions.actions</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Action">
                     <field name="name"/>
                     <field name="type"/>
@@ -65,7 +65,7 @@
             <field name="model">ir.actions.report</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Report">
                     <field name="name" select="1"/>
                     <field name="type" select="1"/>
@@ -81,7 +81,7 @@
             <field name="model">ir.actions.report</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Report xml">
                     <field name="name"/>
                     <field name="type"/>
@@ -117,7 +117,7 @@
             <field name="model">ir.actions.act_window</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Open a Window">
                     <field name="name" select="1"/>
                     <field name="type" readonly="1"/>
@@ -153,7 +153,7 @@
             <field name="model">ir.actions.act_window</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Open Window">
                     <field name="name"/>
                     <field name="res_model"/>
@@ -189,7 +189,7 @@
             <field name="model">ir.actions.wizard</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <form string="Wizard">
                     <field name="name" select="1"/>
                     <field name="type" select="1"/>
@@ -204,7 +204,7 @@
             <field name="model">ir.actions.wizard</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
-                <![CDATA[
+              <![CDATA[
                 <tree string="Wizard">
                     <field name="name"/>
                     <field name="type"/>
