@@ -56,52 +56,46 @@ class MenuitemTagHandler:
         if values.get('parent_id'):
             values['parent_id'] = self.mh.get_id(values['parent_id'])
 
+        action_name = False
         if values.get('action'):
-            type_attr = attributes.get('type', 'act_window').encode('utf8')
             action_id = self.mh.get_id(values['action'])
-            values['action'] = "ir.actions.%s,%d" %\
-                (type_attr, action_id)
-
-            #res = self.mh.pool.get('ir.actions.actions').read(
-            #    self.mh.cursor, self.mh.user, action_id, ['name'])
 
             # TODO maybe use a prefetch for this:
-            self.mh.cursor.execute("""
-            SELECT a.name, a.type, v.type, wv.view_mode
-            FROM ir_act_window a
-                 left join ir_ui_view v on (v.id=a.view_id)
-                 left join ir_act_window_view wv on (a.id=wv.act_window_id)
-            ORDER by wv.sequence
-            LIMIT 1
-            """)
+            self.mh.cursor.execute(
+            "SELECT a.name, a.type, v.type, wv.view_mode " \
+            "FROM ir_actions a " \
+                "LEFT JOIN ir_act_window act on (a.id = act.id) " \
+                "LEFT JOIN ir_ui_view v on (v.id = act.view_id) " \
+                "LEFT JOIN ir_act_window_view wv on (a.id = wv.act_window_id) " \
+            "WHERE a.id = %d " \
+            "ORDER by wv.sequence " \
+            "LIMIT 1", (action_id,))
             action_name, action_type, view_type, view_mode = \
                 self.mh.cursor.fetchone()
 
+            values['action'] = '%s,%d' % (action_type, action_id)
 
-            # TODO the icon depends only on the action except for this
-            # damned 'type' attribute !
-            menuitem_type = attributes.get('type','').encode('utf8')
-            availables_icons= {
-                "act_window": 'STOCK_NEW',
-                "report.xml": 'STOCK_PASTE',
-                "wizard": 'STOCK_EXECUTE',
-                "url": 'STOCK_JUMP_TO',}
-
-            if menuitem_type in availables_icons:
-                values['icon'] = availables_icons[menuitem_type]
-            elif view_type == 'tree':
-                values['icon'] = 'STOCK_INDENT'
-            elif view_mode and view_mode.startswith('tree'):
-                values['icon'] = 'STOCK_JUSTIFY_FILL'
-            elif view_mode and view_mode.startswith('graph'):
-                values['icon'] = 'terp-graph'
-            elif view_mode and view_mode.startswith('calendar'):
-                values['icon'] = 'terp-calendar'
+            icon = attributes.get('icon', '').encode('utf8')
+            if icon:
+                values['icon'] = icon
+            elif action_type == 'ir.actions.wizard':
+                values['icon'] = 'STOCK_EXECUTE'
+            elif action_type == 'ir.actions.report':
+                values['icon'] = 'STOCK_PRINT'
+            elif action_type == 'ir.actions.act_window':
+                if view_type == 'tree':
+                    values['icon'] = 'STOCK_INDENT'
+                elif view_mode and view_mode.startswith('tree'):
+                    values['icon'] = 'STOCK_JUSTIFY_FILL'
+                elif view_mode and view_mode.startswith('graph'):
+                    values['icon'] = 'terp-graph'
+                elif view_mode and view_mode.startswith('calendar'):
+                    values['icon'] = 'terp-calendar'
             else:
                 values['icon'] = 'STOCK_NEW'
 
         if not values.get('name'):
-            if not values.get('action'):
+            if not action_name:
                 raise Exception("Please provide at least a 'name' attributes "
                                 "or a 'action' attributes on the menuitem tags.")
             else:
