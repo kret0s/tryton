@@ -1,0 +1,192 @@
+<?xml version="1.0"?>
+<terp>
+    <data>
+        <menuitem name="Modules" parent_id="menu_ir" id="menu_modules"/>
+        <record model="ir.ui.view" id="module_view_form">
+            <field name="model">ir.module.module</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+              <![CDATA[
+                <form string="Module">
+                    <notebook>
+                        <page string="Module">
+                            <field name="name" select="1"/>
+                            <field name="shortdesc" colspan="4" select="2"/>
+                            <field name="description" colspan="4" select="2"/>
+                            <field name="installed_version"/>
+                            <field name="latest_version"/>
+                            <field name="author" select="2"/>
+                            <field name="website" select="2" widget="url"/>
+                            <field name="url" widget="url"/>
+                            <field name="license"/>
+                            <field name="demo" readonly="1"/>
+                            <newline/>
+                            <field name="state" readonly="1" select="1"/>
+                            <group col="6" colspan="2">
+                                <button string="Install" name="button_install"
+                                    type="object" states="uninstalled"/>
+                                <button string="Cancel Install" name="button_install_cancel"
+                                    type="object" states="to install"/>
+                                <button string="Uninstall (beta)" name="button_uninstall"
+                                    type="object" states="installed"/>
+                                <button string="Cancel Uninstall" name="button_uninstall_cancel"
+                                    type="object" states="to remove"/>
+                                <button string="Upgrade" name="button_upgrade"
+                                    type="object" states="installed"/>
+                                <button string="Cancel Upgrade" name="button_upgrade_cancel"
+                                    type="object" states="to upgrade"/>
+                                <!--
+                                <button string="Update translations" name="button_update_translations" type="object" states="installed"/>
+                                -->
+                            </group>
+                        </page>
+                        <page string="Dependencies">
+                            <field name="dependencies_id" colspan="4" nolabel="1">
+                                <tree string="Dependencies">
+                                    <field name="name"/>
+                                    <field name="state"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </form>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="module_view_tree">
+            <field name="model">ir.module.module</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+              <![CDATA[
+                <tree string="Modules"
+                    colors="blue:state=='to upgrade' or state=='to install';grey:state=='uninstalled' or state=='uninstallable'">
+                    <field name="name"/>
+                    <field name="shortdesc"/>
+                    <field name="author"/>
+                    <field name="installed_version"/>
+                    <field name="latest_version"/>
+                    <field name="state"/>
+                </tree>
+              ]]>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="act_module_form">
+            <field name="name">Modules</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ir.module.module</field>
+            <field name="view_type">form</field>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_module_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="module_view_tree"/>
+            <field name="act_window_id" ref="act_module_form"/>
+        </record>
+        <record model="ir.actions.act_window.view"
+            id="act_module_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="module_view_form"/>
+            <field name="act_window_id" ref="act_module_form"/>
+        </record>
+        <record model="ir.action.keyword" id="act_category_keyword1">
+            <field name="action" ref="act_module_form"/>
+            <field name="keyword">tree_open</field>
+            <field name="model">ir.module.category,0</field>
+        </record>
+        <menuitem parent_id="menu_modules"
+            action="act_module_form" id="menu_module_form"/>
+        <record model="ir.actions.wizard" id="act_module_update_list">
+            <field name="name">Update Module List</field>
+            <field name="wiz_name">ir.module.module.update_list</field>
+        </record>
+        <record model="ir.ui.view" id="module_update_list_init_view_form">
+            <field name="model">ir.module.module.update_list.init</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Update Module List">
+                    <label string="This function will check for new modules in the 'addons' path and on module repositories:"
+                        colspan="4" align="0.0"/>
+                    <field name="repositories" colspan="4" nolabel="1"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="module_update_list_update_view_form">
+            <field name="model">ir.module.module.update_list.update</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="New modules">
+                    <field name="update" colspan="4"/>
+                    <field name="add" colspan="4"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+
+        <menuitem name="Update Module List" parent_id="menu_modules"
+            action="act_module_update_list"
+            type="wizard"
+            id="menu_module_update_list"/>
+        <record model="ir.actions.wizard" id="act_module_install_upgrade">
+            <field name="name">Install / Upgrade Modules</field>
+            <field name="wiz_name">ir.module.module.install_upgrade</field>
+        </record>
+        <record model="ir.action.keyword" id="act_module_install_upgrade_keyword1">
+            <field name="action" ref="act_module_install_upgrade"/>
+            <field name="keyword">form_action</field>
+            <field name="model">ir.module.module,0</field>
+        </record>
+        <record model="ir.ui.view" id="module_install_upgrade_init_view_form">
+            <field name="model">ir.module.module.install_upgrade.init</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="System Upgrade">
+                    <image name="gtk-dialog-info" colspan="2"/>
+                    <group colspan="2" col="4">
+                        <label align="0.0"
+                            string="Your system will be upgraded."
+                            colspan="4"/>
+                        <label align="0.0"
+                            string="Note that this operation my take a few minutes."
+                            colspan="4"/>
+                        <separator string="Modules to update"/>
+                        <field name="module_info" nolabel="1" colspan="4"/>
+                        <separator string="Modules to download"/>
+                        <field name="module_download" nolabel="1" colspan="4"/>
+                    </group>
+                </form>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="module_install_upgrade_start_view_form">
+            <field name="model">ir.module.module.install_upgrade.start</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="System upgrade done">
+                    <separator string="System upgrade done"/>
+                    <label align="0.0"
+                        string="The modules have been upgraded / installed !"
+                        colspan="4"/>
+                    <label align="0.0"
+                        string="You may have to reinstall some language pack."
+                        colspan="4"/>
+                    <label align="0.0"
+                        string="We suggest you to reload the menu tab (Ctrl+t Ctrl+r)."
+                        colspan="4"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+        <menuitem name="Install \ Upgrade Modules"
+            parent_id="menu_modules"
+            action="act_module_install_upgrade"
+            type="wizard"
+            id="menu_module_install_upgrade"/>
+    </data>
+</terp>
