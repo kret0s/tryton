@@ -32,6 +32,7 @@ class ReportService(Service):
             if not report:
                 report = Report.create_instance(self, 'report', pooler.get_pool(cursor.dbname))
                 report._name = report_name
+                self.add(report._name, report)
             res = report.execute(cursor, user, ids, datas, context)
             return res
         except ExceptORM, inst:
@@ -129,7 +130,7 @@ class Report(object):
         super(Report, self).__init__()
 
     def execute(self, cursor, user, ids, datas, context=None):
-        action_report_obj = self.pool.get('ir.actions.report')
+        action_report_obj = self.pool.get('ir.action.report')
         action_report_ids = action_report_obj.search(cursor, user, [
             ('report_name', '=', self._name)
             ], context=context)
