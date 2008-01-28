@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <record model="ir.ui.view" id="view_view_form">
+            <field name="model">ir.ui.view</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="View">
+                    <field name="model" select="1"/>
+                    <field name="type" select="1"/>
+                    <field name="inherit_id" select="1"/>
+                    <field name="field_parent" select="2"/>
+                    <field name="priority" select="2"/>
+                    <field name="arch" colspan="4"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_view_tree">
+            <field name="model">ir.ui.view</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <tree>
+                    <field name="model"/>
+                    <field name="type"/>
+                    <field name="inherit_id"/>
+                </tree>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.action.act_window" id="act_view_form">
+            <field name="name">Views</field>
+            <field name="type">ir.action.act_window</field>
+            <field name="res_model">ir.ui.view</field>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_view_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_id" ref="view_view_tree"/>
+            <field name="act_window_id" ref="act_view_form"/>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_view_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_id" ref="view_view_form"/>
+            <field name="act_window_id" ref="act_view_form"/>
+        </record>
+        <menuitem parent_id="menu_ui"
+            action="act_view_form" id="menu_view"/>
+        <record model="ir.ui.view" id="view_sc_view_form">
+            <field name="model">ir.ui.view_sc</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <form string="Shortcut">
+                    <field name="name" colspan="4" select="1"/>
+                    <field name="user_id" select="1"/>
+                    <field name="sequence"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="view_sc_view_tree">
+            <field name="model">ir.ui.view_sc</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <![CDATA[
+                <tree string="Shortcut">
+                    <field name="name"/>
+                    <field name="user_id"/>
+                    <field name="sequence"/>
+                </tree>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.action.act_window" id="act_view_sc_form">
+            <field name="name">View Shortcuts</field>
+            <field name="type">ir.action.act_window</field>
+            <field name="res_model">ir.ui.view_sc</field>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_view_sc_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_id" ref="view_sc_view_tree"/>
+            <field name="act_window_id" ref="act_view_sc_form"/>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_view_sc_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_id" ref="view_sc_view_form"/>
+            <field name="act_window_id" ref="act_view_sc_form"/>
+        </record>
+        <menuitem parent_id="menu_ui"
+            action="act_view_sc_form" id="menu_view_sc"/>
+    </data>
+</tryton>
