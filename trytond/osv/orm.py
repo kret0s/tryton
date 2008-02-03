@@ -1042,7 +1042,7 @@ class ORM(object):
                 ids = [x['id'] for x in res]
                 res_trans = self.pool.get('ir.translation')._get_ids(cursor,
                         self._name + ',' + field, 'model',
-                        context.get('language', 'en_US'), ids)
+                        context.get('language', False) or 'en_US', ids)
                 for i in res:
                     i[field] = res_trans.get(i['id'], False) or i[field]
 
@@ -1859,6 +1859,7 @@ class ORM(object):
             fargs = args[i][0].split('.', 1)
             field = table._columns.get(fargs[0], False)
             if not field:
+                # XXX must find a solution for long id list
                 if args[i][0] == 'id' and args[i][1] == 'child_of':
                     ids2 = args[i][2]
                     def _rec_get(ids, table, parent):
@@ -1873,10 +1874,10 @@ class ORM(object):
                 continue
             if len(fargs) > 1:
                 if field._type == 'many2one':
-                    args[i] = (fargs[0], 'in',
+                    args[i] = (fargs[0], 'inselect',
                             self.pool.get(field._obj).search(cursor, user,
                                 [(fargs[1], args[i][1], args[i][2])],
-                                context=context))
+                                context=context, query_string=True))
                     i += 1
                     continue
                 else:
@@ -1892,14 +1893,14 @@ class ORM(object):
                         j += 1
                 if field._fnct_search:
                     args.extend(field.search(cursor, user, self,
-                        arg[0][0], arg))
+                        arg[0][0], arg, context=context))
             elif field._type == 'one2many':
                 field_obj = self.pool.get(field._obj)
 
                 if isinstance(args[i][2], basestring):
                     # get the ids of the records of the "distant" resource
                     ids2 = [x[0] for x in field_obj.name_search(cursor, user,
-                        args[i][2], [], args[i][1])]
+                        args[i][2], [], args[i][1], context=context)]
                 else:
                     ids2 = args[i][2]
                 if not ids2:
@@ -1921,12 +1922,12 @@ class ORM(object):
                     args[i] = ('id', 'in', ids3)
                 i += 1
             elif field._type == 'many2many':
-                #FIXME
+                # XXX must find a solution for long id list
                 if args[i][1] == 'child_of':
                     if isinstance(args[i][2], basestring):
                         ids2 = [x[0] for x in self.pool.get(
                         field._obj).name_search(cursor, user, args[i][2], [],
-                            'like')]
+                            'like', context=context)]
                     else:
                         ids2 = args[i][2]
 
@@ -1958,7 +1959,7 @@ class ORM(object):
                     if isinstance(args[i][2], basestring):
                         res_ids = [x[0] for x in self.pool.get(field._obj
                             ).name_search(cursor, user, args[i][2], [],
-                                args[i][1])]
+                                args[i][1], context=context)]
                     else:
                         res_ids = args[i][2]
                     if not len(res_ids):
@@ -1976,11 +1977,12 @@ class ORM(object):
                 i += 1
 
             elif field._type == 'many2one':
+                # XXX must find a solution for long id list
                 if args[i][1] == 'child_of':
                     if isinstance(args[i][2], basestring):
                         ids2 = [x[0] for x in self.pool.get(
                             field._obj).name_search(cursor, user, args[i][2],
-                                [], 'like')]
+                                [], 'like', context=context)]
                     else:
                         ids2 = args[i][2]
 
@@ -2001,7 +2003,8 @@ class ORM(object):
                 else:
                     if isinstance(args[i][2], basestring):
                         res_ids = self.pool.get(field._obj).name_search(cursor,
-                                user, args[i][2], [], args[i][1])
+                                user, args[i][2], [], args[i][1],
+                                context=context)
                         args[i] = (args[i][0], 'in', [x[0] for x in res_ids],
                                 table)
                     else:
@@ -2012,22 +2015,19 @@ class ORM(object):
                     if args[i][1] in ('like', 'ilike'):
                         args[i] = (args[i][0], args[i][1],
                                 '%%%s%%' % args[i][2])
-                    cursor.execute('SELECT res_id FROM ir_translation ' \
-                            'WHERE name = %s AND lang = %s ' \
-                                'AND type = %s ' \
-                                'AND value ' + args[i][1] + ' %s',
-                            (table._name + ',' + args[i][0],
-                                context.get('language', 'en_US'), 'model',
-                                args[i][2]))
-
-                    ids = [x[0] for x in cursor.fetchall()]
-                    cursor.execute(
-                        'SELECT id FROM "' + table._table + '" ' \
-                        'WHERE %s '+args[i][1]+' %s',#FIXME : sql injection here!
-                        (args[i][0], args[i][2],))
-
-                    ids += [x[0] for x in cursor.fetchall()]
-                    args[i] = ('id', 'in', ids, table)
+                        query1 = '(SELECT res_id FROM ir_translation ' \
+                                'WHERE name = %s AND lang = %s ' \
+                                    'AND type = %s ' \
+                                    'AND VALUE ' + args[i][1] + ' %s)'
+                        query2 = [table._name + ',' + args[i][0],
+                                context.get('language', False) or 'en_US',
+                                'model', args[i][2]]
+                        query1 += ' UNION '
+                        query1 += '(SELECT id FROM "' + table._table + '" ' \
+                                'WHERE "' + args[i][0] + '" ' + \
+                                args[i][1] + ' %s)'
+                        query2 += [args[i][2]]
+                        args[i] = ('id', 'inselect', (query1, query2), table)
                 else:
                     args[i] += (table,)
                 i += 1
@@ -2038,7 +2038,34 @@ class ORM(object):
             table = self
             if len(arg) > 3:
                 table = arg[3]
-            if arg[1] != 'in':
+            if arg[1] == 'inselect':
+                qu1.append('(%s.%s in (%s))' % (table._table, arg[0], arg[2][0]))
+                qu2 += arg[2][1]
+            elif arg[1] == 'in':
+                if len(arg[2]) > 0:
+                    todel = []
+                    for xitem in range(len(arg[2])):
+                        if arg[2][xitem] == False \
+                                and isinstance(arg[2][xitem],bool):
+                            todel.append(xitem)
+                    for xitem in todel[::-1]:
+                        del arg[2][xitem]
+                    #TODO fix max_stack_depth
+                    if arg[0] == 'id':
+                        qu1.append('(%s.id in (%s))' % \
+                                (table._table,
+                                    ','.join(['%d'] * len(arg[2])),))
+                    else:
+                        qu1.append('(%s.%s in (%s))' % \
+                                (table._table, arg[0], ','.join(
+                                    [table._columns[arg[0]].\
+                                            _symbol_set[0]] * len(arg[2]))))
+                    if todel:
+                        qu1[-1] = '(' + qu1[-1] + ' or ' + arg[0] + ' is null)'
+                    qu2 += arg[2]
+                else:
+                    qu1.append(' false')
+            else:
                 if (arg[2] is False) and (arg[1] == '='):
                     qu1.append('(%s.%s IS NULL)' % \
                             (table._table, arg[0]))
@@ -2088,30 +2115,7 @@ class ORM(object):
 
                         if add_null:
                             qu1[-1] = '('+qu1[-1]+' or '+arg[0]+' is null)'
-            elif arg[1] == 'in':
-                if len(arg[2]) > 0:
-                    todel = []
-                    for xitem in range(len(arg[2])):
-                        if arg[2][xitem] == False \
-                                and isinstance(arg[2][xitem],bool):
-                            todel.append(xitem)
-                    for xitem in todel[::-1]:
-                        del arg[2][xitem]
-                    #TODO fix max_stack_depth
-                    if arg[0] == 'id':
-                        qu1.append('(%s.id in (%s))' % \
-                                (table._table,
-                                    ','.join(['%d'] * len(arg[2])),))
-                    else:
-                        qu1.append('(%s.%s in (%s))' % \
-                                (table._table, arg[0], ','.join(
-                                    [table._columns[arg[0]].\
-                                            _symbol_set[0]] * len(arg[2]))))
-                    if todel:
-                        qu1[-1] = '(' + qu1[-1] + ' or ' + arg[0] + ' is null)'
-                    qu2 += arg[2]
-                else:
-                    qu1.append(' false')
+
         return (qu1, qu2, tables)
 
     def search_count(self, cursor, user, args, context=None):
@@ -2121,7 +2125,7 @@ class ORM(object):
         return res
 
     def search(self, cursor, user, args, offset=0, limit=None, order=None,
-            context=None, count=False):
+            context=None, count=False, query_string=False):
         # compute the where, order by, limit and offset clauses
         (qu1, qu2, tables) = self._where_calc(cursor, user, args,
                 context=context)
@@ -2152,9 +2156,12 @@ class ORM(object):
             res = cursor.fetchall()
             return res[0][0]
         # execute the "main" query to fetch the ids we were searching for
-        cursor.execute('SELECT %s.id FROM ' % self._table +
-                ','.join(tables) + qu1 + ' order by ' + order_by + limit_str +
-                offset_str, qu2)
+        query_str = 'SELECT %s.id FROM ' % self._table + \
+                ','.join(tables) + qu1 + ' order by ' + order_by + \
+                limit_str + offset_str
+        if query_string:
+            return (query_str, qu2)
+        cursor.execute(query_str, qu2)
         res = cursor.fetchall()
         return [x[0] for x in res]
 
