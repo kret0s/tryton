@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <record model="res.group" id="group_admin">
+            <field name="name">admin</field>
+        </record>
+        <record model="res.user" id="user_admin">
+            <field name="login">admin</field>
+            <field name="password">admin</field>
+            <field name="name">Administrator</field>
+            <field name="signature">Administrator</field>
+            <field name="action_id" ref="ir.act_menu_tree"/>
+            <field name="menu_id" ref="ir.act_menu_tree"/>
+            <field name="groups_id" eval="[(6, 0, [ref('group_admin')])]"/>
+        </record>
+        <record model="ir.ui.view" id="user_view_form">
+            <field name="model">res.user</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+              <![CDATA[
+                <form string="User">
+                    <notebook>
+                        <page string="User">
+                            <label name="name"/>
+                            <field name="name"/>
+                            <label name="active"/>
+                            <field name="active"/>
+                            <label name="login"/>
+                            <field name="login"/>
+                            <label name="password"/>
+                            <field name="password"/>
+                            <!--field name="address_id"/-->
+                            <!--field name="company_id" required="1"/-->
+                            <label name="action_id"/>
+                            <field name="action_id" required="1"/>
+                            <label name="menu_id"/>
+                            <field name="menu_id"
+                                domain="[('usage','=','menu')]"
+                                required="True"/>
+                            <separator name="signature" colspan="4"/>
+                            <field name="signature" colspan="4"/>
+                        </page>
+                        <page string="Security" col="1">
+                            <separator name="groups_id"/>
+                            <field name="groups_id"/>
+                            <separator name="roles_id"/>
+                            <field name="roles_id"/>
+                            <separator name="rule_groups"/>
+                            <field name="rule_groups"/>
+                        </page>
+                        <page string="Preferences" col="2">
+                            <label name="language"/>
+                            <field name="language"/>
+                            <label name="timezone"/>
+                            <field name="timezone"/>
+                        </page>
+                    </notebook>
+                </form>
+              ]]>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="user_view_tree">
+            <field name="model">res.user</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+              <![CDATA[
+                <tree string="Users">
+                    <field name="name" select="1"/>
+                    <field name="login" select="1"/>
+                    <field name="active" select="1"/>
+                </tree>
+              ]]>
+            </field>
+        </record>
+        <record model="ir.action.act_window" id="act_user_form">
+            <field name="name">Users</field>
+            <field name="type">ir.action.act_window</field>
+            <field name="res_model">res.user</field>
+            <field name="view_type">form</field>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_user_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_id" ref="user_view_tree"/>
+            <field name="act_window_id" ref="act_user_form"/>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_user_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_id" ref="user_view_form"/>
+            <field name="act_window_id" ref="act_user_form"/>
+        </record>
+        <menuitem parent_id="res.menu_res"
+            action="act_user_form" id="menu_user_form"/>
+        <record model="ir.ui.view" id="group_view_form">
+            <field name="model">res.group</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+              <![CDATA[
+                <form string="Group">
+                    <notebook>
+                        <page string="Group" col="2">
+                            <label name="name"/>
+                            <field name="name"/>
+                            <separator name="users" colspan="2"/>
+                            <field name="users" colspan="2"/>
+                        </page>
+                        <page string="Security" col="1">
+                            <separator name="model_access"/>
+                            <field name="model_access"/>
+                            <separator name="menu_access"/>
+                            <field name="menu_access"/>
+                            <separator name="rule_groups"/>
+                            <field name="rule_groups"/>
+                        </page>
+                    </notebook>
+                </form>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="group_view_tree">
+            <field name="model">res.group</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+              <![CDATA[
+                <tree string="Groups">
+                    <field name="name" select="1"/>
+                </tree>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.action.act_window" id="act_group_form">
+            <field name="name">Groups</field>
+            <field name="type">ir.action.act_window</field>
+            <field name="res_model">res.group</field>
+            <field name="view_type">form</field>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_group_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_id" ref="group_view_tree"/>
+            <field name="act_window_id" ref="act_group_form"/>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_group_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_id" ref="group_view_form"/>
+            <field name="act_window_id" ref="act_group_form"/>
+        </record>
+        <menuitem parent_id="res.menu_res"
+            action="act_group_form" id="menu_group_form"/>
+    </data>
+</tryton>

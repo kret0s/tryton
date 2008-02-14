@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <record model="ir.ui.view" id="attachment_view_form">
+            <field name="model">ir.attachment</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+              <![CDATA[
+                <form string="Attachments" col="6">
+                    <label name="name"/>
+                    <field name="name"/>
+                    <label name="res_model"/>
+                    <field name="res_model"/>
+                    <label name="res_id"/>
+                    <field name="res_id"/>
+                    <label name="datas_fname"/>
+                    <field name="datas_fname"/>
+                    <label name="datas"/>
+                    <field name="datas" colspan="3"/>
+                    <separator name="description" colspan="6"/>
+                    <field name="description" colspan="6"/>
+                </form>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="attachment_view_tree">
+            <field name="model">ir.attachment</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+              <![CDATA[
+                <tree string="Attachments">
+                    <field name="name" select="1"/>
+                    <field name="res_model" select="1"/>
+                    <field name="res_id"/>
+                </tree>
+                ]]>
+            </field>
+        </record>
+        <record model="ir.action.act_window" id="act_attachment_form">
+            <field name="name">Attachments</field>
+            <field name="type">ir.action.act_window</field>
+            <field name="res_model">ir.attachment</field>
+            <field name="view_type">form</field>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_attachment_form_view1">
+            <field name="sequence" eval="1"/>
+            <field name="view_id" ref="attachment_view_tree"/>
+            <field name="act_window_id" ref="act_attachment_form"/>
+        </record>
+        <record model="ir.action.act_window.view"
+            id="act_attachment_form_view2">
+            <field name="sequence" eval="2"/>
+            <field name="view_id" ref="attachment_view_form"/>
+            <field name="act_window_id" ref="act_attachment_form"/>
+        </record>
+        <menuitem name="Attachments" parent_id="ir.menu_ir"
+            action="act_attachment_form" id="menu_attachment_form"/>
+    </data>
+</tryton>
