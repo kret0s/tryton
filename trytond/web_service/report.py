@@ -1,0 +1,16 @@
+from trytond.netsvc import Service, LocalService
+from trytond import security
+
+
+class Report(Service):
+
+    def __init__(self, name='report'):
+        Service.__init__(self, name)
+        Service.join_group(self, 'web-services')
+        Service.export_method(self, self.execute)
+
+    def execute(self, database, user, passwd, report_name, ids, datas=None,
+            context=None):
+        security.check(database, user, passwd)
+        report = LocalService('report_proxy')
+        return report.execute(database, user, report_name, ids, datas, context)
