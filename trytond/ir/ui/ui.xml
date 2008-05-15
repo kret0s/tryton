@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<tryton>
+    <data>
+        <menuitem name="UI" parent="menu_ir" id="menu_ui"/>
+    </data>
+</tryton>
