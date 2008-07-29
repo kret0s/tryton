@@ -4,8 +4,8 @@
 
 CREATE TABLE ir_model (
   id serial,
-  model varchar(64) DEFAULT ''::varchar NOT NULL,
-  name varchar(64),
+  model varchar DEFAULT ''::varchar NOT NULL,
+  name varchar,
   info text,
   primary key(id)
 );
@@ -13,14 +13,15 @@ CREATE TABLE ir_model (
 CREATE TABLE ir_model_field (
   id serial,
   model int references ir_model on delete cascade,
-  name varchar(64) DEFAULT ''::varchar NOT NULL,
-  relation varchar(64),
-  field_description varchar(256),
-  ttype varchar(64),
-  group_name varchar(64),
+  name varchar DEFAULT ''::varchar NOT NULL,
+  relation varchar,
+  field_description varchar,
+  ttype varchar,
+  group_name varchar,
   view_load boolean,
   relate boolean default False,
   help text,
+  module varchar,
   primary key(id)
 );
 
@@ -30,10 +31,10 @@ CREATE TABLE ir_model_field (
 -------------------------------------------------------------------------
 CREATE TABLE ir_ui_view (
 	id serial NOT NULL,
-	model varchar(64) DEFAULT ''::varchar NOT NULL,
+	model varchar DEFAULT ''::varchar NOT NULL,
 	"type" varchar DEFAULT 'form'::varchar NOT NULL,
 	arch text NOT NULL,
-	field_childs varchar(64),
+	field_childs varchar,
 	priority integer DEFAULT 5 NOT NULL,
 	primary key(id)
 );
@@ -41,7 +42,7 @@ CREATE TABLE ir_ui_view (
 CREATE TABLE ir_ui_menu (
 	id serial NOT NULL,
 	parent_id int references ir_ui_menu on delete set null,
-	name varchar(64) DEFAULT ''::varchar NOT NULL,
+	name varchar DEFAULT ''::varchar NOT NULL,
 	icon varchar DEFAULT ''::varchar,
 	primary key (id)
 );
@@ -56,19 +57,19 @@ CREATE TABLE ir_translation (
     id serial NOT NULL,
     lang varchar,
     src text,
-    name varchar(128) NOT NULL,
+    name varchar NOT NULL,
     res_id integer DEFAULT 0,
     value text,
     "type" varchar,
-    module varchar(128),
+    module varchar,
     fuzzy boolean default False,
     primary key(id)
 );
 
 CREATE TABLE ir_lang (
     id serial NOT NULL,
-    name varchar(64) NOT NULL,
-    code varchar(5) NOT NULL,
+    name varchar NOT NULL,
+    code varchar NOT NULL,
     translatable boolean default False,
     active boolean default True,
     direction varchar NOT NULL,
@@ -100,7 +101,7 @@ insert into res_user (id,login,password,name,action,active) values (0,'root',NUL
 
 CREATE TABLE res_group (
     id serial NOT NULL,
-    name varchar(32) NOT NULL,
+    name varchar NOT NULL,
     primary key(id)
 );
 
@@ -134,7 +135,7 @@ create table wkf_activity
     signal_send varchar(32) default null,
     flow_start boolean default False,
     flow_stop boolean default False,
-    action varchar(64) default null,
+    action varchar default null,
     primary key(id)
 );
 
@@ -145,7 +146,6 @@ create table wkf_transition
     act_to int references wkf_activity on delete cascade,
     condition varchar(128) default NULL,
 
-    trigger_type varchar(128) default NULL,
     trigger_expr_id varchar(128) default NULL,
 
     signal varchar(64) default null,
@@ -179,18 +179,6 @@ create table wkf_witm_trans
 (
     trans_id int not null references wkf_transition on delete cascade,
     inst_id int not null references wkf_instance on delete cascade
-);
-
-create table wkf_logs
-(
-    id serial,
-    res_type varchar(128) not null,
-    res_id int not null,
-    uid int references res_user on delete set null,
-    activity int references wkf_activity on delete set null,
-    time time not null,
-    info varchar(128) default NULL,
-    primary key(id)
 );
 
 ---------------------------------

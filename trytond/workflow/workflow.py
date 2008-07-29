@@ -51,17 +51,17 @@ class WorkflowActivity(OSV):
        ('XOR', 'Xor'),
        ('OR', 'Or'),
        ('AND', 'And'),
-       ], 'Split Mode', size=3, required=True)
+       ], 'Split Mode', required=True)
     join_mode = fields.Selection([
        ('XOR', 'Xor'),
        ('AND', 'And'),
-       ], 'Join Mode', size=3, required=True)
+       ], 'Join Mode', required=True)
     kind = fields.Selection([
        ('dummy', 'Dummy'),
        ('function', 'Function'),
        ('subflow', 'Subflow'),
        ('stopall', 'Stop All'),
-       ], 'Kind', size=64, required=True)
+       ], 'Kind', required=True)
     action = fields.Char('Action', size=None)
     flow_start = fields.Boolean('Flow Start')
     flow_stop = fields.Boolean('Flow Stop')
@@ -116,9 +116,9 @@ class WorkflowInstance(OSV):
     _description = __doc__
     workflow = fields.Many2One('workflow', 'Workflow', ondelete="restrict")
     uid = fields.Integer('User ID')
-    res_id = fields.Integer('Resource ID')
-    res_type = fields.Char('Resource Model', size=64)
-    state = fields.Char('State', size=32)
+    res_id = fields.Integer('Resource ID', required=True)
+    res_type = fields.Char('Resource Model', size=64, required=True)
+    state = fields.Char('State', size=32, required=True)
 
     def _auto_init(self, cursor, module_name):
         super(WorkflowInstance, self)._auto_init(cursor, module_name)
