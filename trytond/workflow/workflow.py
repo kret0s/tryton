@@ -51,11 +51,11 @@ class WorkflowActivity(OSV):
        ('XOR', 'Xor'),
        ('OR', 'Or'),
        ('AND', 'And'),
-       ], 'Split Mode', size=3, required=True)
+       ], 'Split Mode', required=True)
     join_mode = fields.Selection([
        ('XOR', 'Xor'),
        ('AND', 'And'),
-       ], 'Join Mode', size=3, required=True)
+       ], 'Join Mode', required=True)
     kind = fields.Selection([
        ('dummy', 'Dummy'),
        ('function', 'Function'),
@@ -116,6 +116,7 @@ class WorkflowInstance(OSV):
     _description = __doc__
     workflow = fields.Many2One('workflow', 'Workflow', ondelete="restrict")
     uid = fields.Integer('User ID')
+    res_id = fields.Integer('Resource ID', required=True)
     res_id = fields.Integer('Resource ID')
     res_type = fields.Char('Resource Model')
     state = fields.Char('State')

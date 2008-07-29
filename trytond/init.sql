@@ -21,6 +21,7 @@ CREATE TABLE ir_model_field (
   view_load boolean,
   relate boolean,
   help text,
+  module varchar,
   primary key(id)
 );
 
@@ -89,7 +90,7 @@ CREATE TABLE res_user (
     name varchar not null,
     active boolean,
     login varchar NOT NULL UNIQUE,
-    password varchar,
+    password varchar(40),
 --  action_id int references ir_act_window on delete set null,
     action int,
     primary key(id)
@@ -144,10 +145,7 @@ create table wkf_transition
     act_from int references wkf_activity on delete cascade,
     act_to int references wkf_activity on delete cascade,
     condition varchar,
-
-    trigger_type varchar,
     trigger_expr_id varchar,
-
     signal varchar,
     "group" int references res_group on delete set null,
 
