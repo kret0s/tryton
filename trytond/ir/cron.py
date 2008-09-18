@@ -78,7 +78,7 @@ class Cron(OSV):
     def default_running(self, cursor, user, context=None):
         return False
 
-    def _callback(self, cursor, user, model, func, args):
+    def _callback(self, cursor, user, job_id, model, func, args):
         args = (args or []) and eval(args)
         obj = self.pool.get(model)
         if obj and hasattr(obj, func):
@@ -103,8 +103,8 @@ class Cron(OSV):
             jobs = cursor.dictfetchall()
             if jobs:
                 cursor.execute('UPDATE ir_cron SET running = True ' \
-                        'WHERE id in (' ','.join(['%s' for x in jobs]) + ')',
-                        tuple([x['id'] for x in jobs]))
+                        'WHERE id in (' + ','.join(['%s' for x in jobs]) + ')',
+                        [x['id'] for x in jobs])
             for job in jobs:
                 nextcall = DateTime.strptime(str(job['nextcall']),
                         '%Y-%m-%d %H:%M:%S')
@@ -114,7 +114,7 @@ class Cron(OSV):
                     if numbercall > 0:
                         numbercall -= 1
                     if not done or job['doall']:
-                        self._callback(cursor, job['user'], job['model'],
+                        self._callback(cursor, job['user'], job['id'], job['model'],
                                 job['function'], job['args'])
                     if numbercall:
                         nextcall += _INTERVALTYPES[job['interval_type']](
