@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+#This file is part of Tryton.  The COPYRIGHT file at the top level of
+#this repository contains the full copyright notices and license terms.
+
+from setuptools import setup, find_packages
+import os
+
+execfile(os.path.join('trytond', 'version.py'))
+
+setup(name=PACKAGE,
+    version=VERSION,
+    description='Tryton server',
+    author='B2CK',
+    author_email='info@b2ck.com',
+    url=WEBSITE,
+    packages=find_packages(exclude=['*.modules.*', 'modules.*', 'modules']),
+    package_data={
+        'trytond': ['init.sql'],
+        'trytond.ir': ['*.xml', '*.csv'],
+        'trytond.ir.module': ['*.xml'],
+        'trytond.ir.ui': ['*.xml', '*.rng', '*.rnc'],
+        'trytond.res': ['*.xml', '*.csv'],
+        'trytond.webdav': ['*.xml', '*.csv'],
+        'trytond.workflow': ['*.xml', '*.csv'],
+    },
+    data_files=[
+        ('/etc', ['etc/trytond.conf']),
+    ],
+    scripts=['bin/trytond'],
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: No Input/Output (Daemon)',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: GNU General Public License (GPL)',
+        'Natural Language :: English',
+        'Natural Language :: French',
+        'Natural Language :: German',
+        'Natural Language :: Spanish',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Topic :: Software Development :: Libraries :: Application Frameworks',
+    ],
+    license=LICENSE,
+    install_requires=[
+        'psycopg >= 2.0',
+        'lxml',
+        'egenix-mx-base',
+        'relatorio >= 0.2.0',
+    ],
+)
