@@ -1,0 +1,8 @@
+Version 1.0.1 - 2008-12-01
+* Improve netrpc communication speed
+* Use explicit join in search SQL query
+* Fix for host with IPv6 enable but without default IPv6 route
+* Allow egg installation
+
+Version 1.0.0 - 2008-11-17
+* Initial release
