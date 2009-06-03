@@ -1,0 +1,38 @@
+* Doesn't append '%' to "like", "ilike" clauses
+* Handle database dump and restore with password
+* Add float_time attribute in fields view
+
+Version 1.2.0 - 2009-04-20
+* Bug fixes (see mercurial logs for details)
+* Add delete of foreign keys with ondelete CASCADE
+* Add write for foreign keys with ondelete SET NULL
+* Add datetime_field on Many2One to use a specific _datetime when reading the related record
+* Use _datetime in context to read record value at specific datetime
+* Add _history_table on ModelSQL to historize change on records
+* Allow to use related fields (many2one and reference) in read
+* Use rec_name function field instead of name_get and name_search
+* Use a new Pool for objects
+* Move workflow in ModelWorkflow and the workflow module
+* Remove Service and LocalService objects
+* New netrpc/xmlrpc syntax
+* copy on ModelStorage copies one2many directly on the right record
+* Search on translated field will search only on translated value
+* Add active field on ir.action to allow better override of reports
+* Add depends attributes on Column
+* Make Modified Preorder Tree Traversal respects the default order of the model
+* Add replace_attributes for xpath tag
+* Add email parameter on report action
+* Allow to inherit views from an other model
+* Add user warnings
+* Allow to use a list of id for copy method
+* Use one lock per database
+* Improve netrpc communication speed
+* Add contextual domain on inherited views
+* Allow to use globals in domain and states
+* Add translate attribute on Selection field
+* Use explicit join in search SQL query
+* Fix for host with IPv6 enable but without default IPv6 route
+* Allow egg installation
+
+Version 1.0.0 - 2008-11-17
+* Initial release
